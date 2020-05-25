@@ -22,17 +22,20 @@ function getPlugins () {
   ]
   // 开发环境, 加载 index.html 目录
   !production && plugins.push(new HtmlWebpackPlugin({
-    filename: 'index.html',
-    template: path.resolve(__dirname, 'index.html'),
+    filename: "index.html",
+    template: path.resolve(__dirname, "index.html"),
   }))
   // 如果不是 production 環境, 則添加 清空dist目錄 的 插件
   !production && plugins.push(new CleanWebpackPlugin())
   return plugins
 }
 
+// 入口文件, 开发环境执行 debug 目录下的代码, 生产版本直接打包 src 目录下的代码
+const entry = production ? "./src" : "./debug/index.js"
+
 module.exports = {
   mode: "production",
-  entry: "./src",
+  entry: entry,
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: production ? 'netrol.min.js' : 'netrol.js',
@@ -61,6 +64,9 @@ module.exports = {
     port: 80,
   },
   resolve: {
+    alias: {
+      "@": path.resolve("src"),
+    },
     extensions: [".ts", ".js"]
   },
   devtool: 'inline-source-map',

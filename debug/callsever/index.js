@@ -1,4 +1,4 @@
-import Netrol from 'netrol'
+import Netrol from '@/index'
 
 import apis from './apis'
 import headers from './headers'

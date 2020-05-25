@@ -1,1 +1,3 @@
-console.log(233)
+// export default (demo: string): string => {
+//   return demo
+// }
