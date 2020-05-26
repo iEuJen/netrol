@@ -9,6 +9,6 @@
         "target": "esnext",
         "baseUrl": "./",
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "debug/**/*.js"],
     "exclude": ["node_modules"]
 }

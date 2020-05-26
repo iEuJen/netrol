@@ -1,2 +1,2 @@
-// import demo from '@/index'
-// console.log(demo('fasag'))
+import demo from '@/index'
+console.log(demo())
