@@ -1,13 +1,13 @@
 module.exports = {
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "project": "./tsconfig.json"
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    ecmaVersion: 6,
+    sourceType: "module",
+    project: "./tsconfig.json"
   },
-  "extends": "standard",
-  "plugins": ["@typescript-eslint"],
-  "rules": {
+  extends: "standard",
+  plugins: ["@typescript-eslint"],
+  rules: {
 		"prefer-const": "off",
     "indent": ["error", 2],
     "eol-last": "off",
@@ -20,5 +20,5 @@ module.exports = {
     "no-unused-vars": "off",
     "no-unreachable": "warn",
     "no-useless-constructor": "off"
-  }
+  },
 }
