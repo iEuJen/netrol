@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "npm run server | webpack-dev-server",
     "build": "npm run build-debug && npm run build-min",
-    "build-debug": "webpack",
+    "build-debug": "cross-env NODE_ENV=debug webpack",
     "build-min": "cross-env NODE_ENV=production webpack",
     "server": "node server"
   },

@@ -1,5 +1,6 @@
 function demo () {
-  console.log(233)
+  console.log('211212')
 }
-
-export default demo
+export {
+  demo
+}
