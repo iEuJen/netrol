@@ -1,4 +1,4 @@
-import { demo as Netrol } from '@/index'
+import { Netrol } from '../../index'
 
 import apis from './apis'
 import headers from './headers'

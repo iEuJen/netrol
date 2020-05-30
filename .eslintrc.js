@@ -9,7 +9,7 @@ module.exports = {
   plugins: ["@typescript-eslint"],
   rules: {
 		"prefer-const": "off",
-    "indent": ["error", 2],
+    "indent": "off",
     "eol-last": "off",
     "space-in-parens": "off",
     "operator-linebreak": "off",
