@@ -1,8 +1,9 @@
-function Netrol () {
-  console.log('211212')
+import create from './src/create'
+
+export default {
+  create
 }
-export default Netrol
 
 export {
-  Netrol
+  create
 }
