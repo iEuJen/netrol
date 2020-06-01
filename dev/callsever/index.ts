@@ -1,30 +1,17 @@
 import Netrol from '../../index'
 
-// import apis from './apis'
-// import headers from './headers'
-// import leach from './leach'
-// let moduleA = {
-//   apis: {
-//     demo: {
-//       method: 'post',
-//       url: '/post'
-//     }
-//   }
-// }
+import apis from './apis'
+import headers from './headers'
+import leach from './leach'
+
+import moduleA from './moduleA/index'
+
 export default Netrol.create({
   baseUrl: '/apis',
-  apis: {
-    demo: {
-      method: 'pOst',
-      url: '/post'
-    }
-  },
-  headers: {
-  },
-  leach: {
-    demo (data) {
-      console.log(data)
-      return data
-    }
-  },
+  apis,
+  headers,
+  leach,
+  module: {
+    moduleA
+  }
 })

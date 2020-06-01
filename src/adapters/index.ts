@@ -1,10 +1,13 @@
 /* global  XMLHttpRequest */
 
-export default function () {
+export default function (config: any) {
+  // 解析获取配置项
+  let { headers, method, url, data } = config
+
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest()
     
-    xhr.open('post', '/apis/post', true)
+    xhr.open(method, url, true)
     xhr.setRequestHeader('Content-Type', 'application/json')
 
     xhr.onreadystatechange = function () {
@@ -18,7 +21,11 @@ export default function () {
       reject(new Error('a error'))
       xhr = null
     }
+    
+    if (!data) {
+      data = null
+    }
 
-    xhr.send()
+    xhr.send(data ? JSON.stringify(data) : data)
   })
 }

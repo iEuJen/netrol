@@ -9,11 +9,24 @@ app.use(bodyParser.urlencoded({extended: false}))
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-app.post('/post', (req, res) => {
-  console.log(req.body)
+app.post('/post1', (req, res) => {
   res.json({
-    code: 0,
-    data: 233,
+    code: 1,
+    data: 'post1',
+    body: req.body
+  })
+})
+app.post('/post2', (req, res) => {
+  res.json({
+    code: 1,
+    data: 'post2',
+    body: req.body
+  })
+})
+app.post('/post3', (req, res) => {
+  res.json({
+    code: 1,
+    data: 'post3',
     body: req.body
   })
 })
