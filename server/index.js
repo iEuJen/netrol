@@ -23,10 +23,11 @@ app.post('/post2', (req, res) => {
     body: req.body
   })
 })
-app.post('/post3', (req, res) => {
+app.post('/error', (req, res) => {
+  res.status(500)
   res.json({
     code: 1,
-    data: 'post3',
+    data: 'error',
     body: req.body
   })
 })

@@ -1,9 +1,11 @@
 // 导入接口
 import { NetrolOptions } from '@/interfaces/index'
-// 导入适配器
-import adapters from '@/adapters/index'
+// 导入请求
+import dispatchRequest from './dispatchRequest'
 // 导入默认请求头
 import defaultHeaders from './headers'
+// 引入请求池
+import requestPool from './requestPool'
 // 引入工具方法
 import utils from '@/utils/index'
 /**
@@ -26,7 +28,6 @@ class Netrol {
    * @param options Netrol 实例的配置项
    */
   constructor (options: NetrolOptions) {
-    console.log(options)
     let { apis, headers, leach, baseUrl, module } = options
     // 检查 apis 是否存在
     if (!apis) {
@@ -49,14 +50,20 @@ class Netrol {
    * @param data 传递给服务器的数据
    */
   request (apiName: string, data: object) {
+    // console.log(apiName)
+    // 判断是否该请求是否正在执行
+    if ( requestPool.isExist(apiName) ) return Promise.resolve(false)
+    // 将 apiname 添加到请求池
+    requestPool.push(apiName)
+
     // 根据调用 api，合并配置项
     let config = this.mergeConfig(apiName, data)
 
     // 如果返回的是 Promise 对象， 则直接返回
     if (config instanceof Promise) return config
 
-    // 调用 adapters
-    return adapters(config)
+    // 调用 请求
+    return dispatchRequest(config)
   }
 
   /**
@@ -108,14 +115,39 @@ class Netrol {
 
     // 合并配置项
     config = {
+      apiName,
       headers,
       ...api,
     }
     // data 存在，则添加到 config 上
-    if (data) config.data = data
-
+    if (data) config.data = this.transformData(data)
+    
     // 返回
     return config
+  }
+
+  /**
+   * 转换请求数据
+   * @param data 
+   */
+  transformData (data) {
+    // 特殊对象，直接返回
+    if (utils.isFormData(data) ||
+      utils.isArrayBuffer(data) ||
+      utils.isStream(data) ||
+      utils.isFile(data) ||
+      utils.isBlob(data)
+    ) {
+      return data
+    }
+
+    // 普通对象，转为 JSON 字符串
+    if ( utils.isObject(data) ) {
+      return JSON.stringify(data)
+    }
+
+    // 未知情况，直接返回
+    return data
   }
 }
 

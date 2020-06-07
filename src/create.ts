@@ -5,8 +5,6 @@ import { NetrolOptions } from './interfaces/index'
  */
 export default function (options: NetrolOptions): Function {
   let netrol = new Netrol(options)
-  console.log(netrol)
-  console.log('------------')
   return (apiName: string, data: object) => {
     return netrol.request(apiName, data)
   }

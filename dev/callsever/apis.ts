@@ -3,8 +3,8 @@ export default {
     url: '/post1',
     method: 'post'
   },
-  post2: {
-    url: '/post2',
+  error: {
+    url: '/error',
     method: 'post'
   }
 }
