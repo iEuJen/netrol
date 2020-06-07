@@ -4,5 +4,8 @@ import leach from './leach'
 
 export default {
   apis,
-  leach
+  leach,
+  config: {
+    
+  }
 }

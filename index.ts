@@ -1,9 +1,9 @@
 import create from './src/create'
 
 export default {
-  create
+  create,
 }
 
 export {
-  create
+  create,
 }

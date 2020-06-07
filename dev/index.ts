@@ -2,6 +2,14 @@
 import netrol from './callsever/index'
 
 // netrol('null', { b: 666 })
+// netrol('post1', { a: 233 })
+// .then(res => {
+//   console.log(res)
+// })
+netrol('error', { a: 233 })
+.then(res => {
+  console.log(res)
+})
 netrol('post1', { a: 233 })
 .then(res => {
   console.log(res)

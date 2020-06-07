@@ -22,13 +22,17 @@ class Netrol {
   baseUrl: string
   // 模块
   modules: object
+  // 请求拦截器
+  interceptorRequest: Function
 
   /**
    * 构造函数
    * @param options Netrol 实例的配置项
    */
   constructor (options: NetrolOptions) {
-    let { apis, headers, leach, baseUrl, module } = options
+    let { apis, leach, module, config = {} } = options
+    let { headers, baseUrl, request } = config
+    // console.log(request)
     // 检查 apis 是否存在
     if (!apis) {
       throw new Error('The create method needs to accept a options object with apis object; create 方法需要接受一个带有 apis属性 的配置对象')
@@ -42,6 +46,7 @@ class Netrol {
     this.leach = leach
     this.baseUrl = baseUrl || ''
     this.modules = module
+    this.interceptorRequest = request
   }
 
   /**
@@ -50,6 +55,9 @@ class Netrol {
    * @param data 传递给服务器的数据
    */
   request (apiName: string, data: object) {
+    // 将请求函数，添加到 promise 链数组中
+    const chain = [dispatchRequest]
+    let promise = null
     // console.log(apiName)
     // 判断是否该请求是否正在执行
     if ( requestPool.isExist(apiName) ) return Promise.resolve(false)
@@ -62,19 +70,38 @@ class Netrol {
     // 如果返回的是 Promise 对象， 则直接返回
     if (config instanceof Promise) return config
 
-    // 调用 请求
-    return dispatchRequest(config)
+    // 如果存在 interceptorRequest 则添加到 promise 链的最前面
+    if (config.interceptorRequest) {
+      chain.unshift(config.interceptorRequest)
+      delete config.interceptorRequest
+    }
+
+    // 存在 leach，则添加到 promise 链中
+    if (config.leach) {
+      chain.push(config.leach)
+    }
+    delete config.leach
+    
+    // 连接 promise 链
+    promise = Promise.resolve(config)
+    while (chain.length) {
+      promise = promise.then( chain.shift() )
+    }
+    
+    return promise
   }
 
   /**
    * 合并配置项
    * @param apiName 对应调用的接口
    */
-  mergeConfig (apiName: string, data: object): any {
+  mergeConfig (apiName: string, data: object): Record<string, any> {
     let config = null
     let api = null
-    let headers = null
+    let leach = null
+    let headers = utils.deepCopy(this.headers)
     let baseUrl = this.baseUrl
+    let interceptorRequest = this.interceptorRequest
 
     // 判断调用的是否为 module 中 api
     if ( apiName.includes('.') ) {
@@ -84,15 +111,32 @@ class Netrol {
       // 判断传递的 module 是否存在
       if (!theModule) return Promise.reject(new Error(`module ${module} is not exist; 模块 ${module} 不存在`))
 
-      // 模块上如果存在 baseUrl，则更改 baseUrl，则更改
-      if (theModule.baseUrl) {
-        baseUrl = theModule.baseUrl
+      // 判断模块上是否存在配置项
+      if (theModule.config) {
+        // 模块上如果存在 baseUrl，则更改 baseUrl，则更改
+        if (theModule.config.baseUrl) {
+          baseUrl = theModule.baseUrl
+        }
+        // 模块上如果存在 headers，则合并
+        if (theModule.config.headers) {
+          headers = {
+            ...headers,
+            ...utils.deepCopy(theModule.config.headers)
+          }
+        }
+        // 如果模块上存在 request（请求拦截器），则进行替换
+        if (theModule.config.request) {
+          interceptorRequest = theModule.config.request
+        }
       }
       
-      // 提取 api
+      // 提取 api 和 leach
       api = theModule.apis[name]
+      leach = theModule.leach[name]
     } else {
+      // 提取 api 和 leach
       api = this.apis[apiName]
+      leach = this.leach[apiName]
     }
 
     // 判断是否找到对应 api
@@ -107,7 +151,7 @@ class Netrol {
     api.url = `${baseUrl}${api.url}`
     // 合并 headers 和 api.headers
     headers = {
-      ...this.headers,
+      ...headers,
       ...api.headers
     }
     // 删除 api.headers
@@ -117,11 +161,13 @@ class Netrol {
     config = {
       apiName,
       headers,
+      leach,
       ...api,
     }
-    // data 存在，则添加到 config 上
+    // data 和 interceptorRequest 存在，则添加到 config 上
     if (data) config.data = this.transformData(data)
-    
+    if (interceptorRequest) config.interceptorRequest = interceptorRequest
+
     // 返回
     return config
   }

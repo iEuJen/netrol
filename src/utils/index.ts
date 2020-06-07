@@ -27,7 +27,7 @@ function isObject (value): Boolean {
  * @param value 
  */
 function isFunction (value): Boolean {
-  return isObject(value) && value instanceof Function
+  return value && value instanceof Function
 }
 /**
  * 判断是否为 Formdata 对象
@@ -61,8 +61,21 @@ function isFile (value) {
   return isObject(value) && value instanceof File
 }
 
+/**
+ * 判断是否为 Blob 对象
+ * @param value 
+ */
 function isBlob (value) {
   return isObject(value) && value instanceof Blob
+}
+
+/**
+ * 判断属性是否为目标对象自有属性
+ * @param target 目标对象
+ * @param prop 判断的属相
+ */
+function isOwnProp (target: Record<string, any>, prop: any) {
+  return Object.prototype.hasOwnProperty.call(target, prop)
 }
 
 export default {
@@ -73,5 +86,6 @@ export default {
   isArrayBuffer,
   isStream,
   isFile,
-  isBlob
+  isBlob,
+  isOwnProp,
 }
