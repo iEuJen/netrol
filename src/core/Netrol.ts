@@ -58,10 +58,9 @@ class Netrol {
    * @param data 传递给服务器的数据
    */
   request (apiName: string, data: object) {
-    // 将请求函数，添加到 promise 链数组中
-    const chain = [dispatchRequest]
     let promise = null
-    // console.log(apiName)
+    let chain = null
+    
     // 判断是否该请求是否正在执行
     if ( requestPool.isExist(apiName) ) return Promise.resolve(false)
     // 将 apiname 添加到请求池
@@ -69,10 +68,28 @@ class Netrol {
 
     // 根据调用 api，合并配置项
     let config = this.mergeConfig(apiName, data)
-
     // 如果返回的是 Promise 对象， 则直接返回
     if (config instanceof Promise) return config
 
+    // 合并 promise 链
+    chain = this.mergePromiseChain(config)
+
+    // 连接 promise 链
+    promise = Promise.resolve(config)
+    while (chain.length) {
+      promise = promise.then( chain.shift() )
+    }
+    
+    return promise
+  }
+
+  /**
+   * 合并 promise 链
+   * @param config 请求配置对象
+   */
+  mergePromiseChain (config: Record<string, any>) {
+    // 将请求函数，添加到 promise 链数组中
+    let chain = [dispatchRequest]
     // 如果存在 interceptorRequest 则添加到 promise 链的最前面
     if (config.interceptorRequest) {
       chain.unshift(config.interceptorRequest)
@@ -89,14 +106,7 @@ class Netrol {
       chain.push(config.leach)
     }
     delete config.leach
-    
-    // 连接 promise 链
-    promise = Promise.resolve(config)
-    while (chain.length) {
-      promise = promise.then( chain.shift() )
-    }
-    
-    return promise
+    return chain
   }
 
   /**

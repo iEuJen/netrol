@@ -15,6 +15,12 @@ export default Netrol.create({
   config: {
     baseUrl: '/apis',
     headers,
+    response (res) {
+      return res
+    },
+    request (config) {
+      return config
+    }
   },
   apis,
   leach,
