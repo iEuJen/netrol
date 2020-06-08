@@ -1,5 +1,7 @@
 // 导入适配器
 import adapters from '@/adapters/index'
+// 导入捕获器
+import catcher from '@/core/catcher'
 
 export default function (config: Record<string, any>) {
   // console.log(config)
@@ -10,7 +12,12 @@ export default function (config: Record<string, any>) {
     if (res.status >= 200 && res.status < 300) {
       return res
     } else {
-      return Promise.reject(res.statusText)
+      let result = catcher.trigger(res.status)
+      if (result) {
+        return Promise.reject(new Error('be catched'))
+      } else {
+        return Promise.reject(res.statusText)
+      }
     }
   })
 }

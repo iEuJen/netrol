@@ -3,6 +3,7 @@ interface Config {
   baseUrl?: string, // url默认部分（域名）
   headers?: Record<string, any>, // 请求头
   request?: Function, // 请求拦截器
+  response?: Function, // 响应拦截器
 }
 // Netrol 模块详情
 interface ModuleDetail {

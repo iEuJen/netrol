@@ -24,6 +24,8 @@ class Netrol {
   modules: object
   // 请求拦截器
   interceptorRequest: Function
+  // 响应拦截器
+  interceptorResponse: Function
 
   /**
    * 构造函数
@@ -31,7 +33,7 @@ class Netrol {
    */
   constructor (options: NetrolOptions) {
     let { apis, leach, module, config = {} } = options
-    let { headers, baseUrl, request } = config
+    let { headers, baseUrl, request, response } = config
     // console.log(request)
     // 检查 apis 是否存在
     if (!apis) {
@@ -47,6 +49,7 @@ class Netrol {
     this.baseUrl = baseUrl || ''
     this.modules = module
     this.interceptorRequest = request
+    this.interceptorResponse = response
   }
 
   /**
@@ -75,6 +78,11 @@ class Netrol {
       chain.unshift(config.interceptorRequest)
       delete config.interceptorRequest
     }
+    // 如果存在 interceptorResponse 则添加到 promise 连上
+    if (config.interceptorResponse) {
+      chain.push(config.interceptorResponse)
+      delete config.interceptorResponse
+    }
 
     // 存在 leach，则添加到 promise 链中
     if (config.leach) {
@@ -102,6 +110,7 @@ class Netrol {
     let headers = utils.deepCopy(this.headers)
     let baseUrl = this.baseUrl
     let interceptorRequest = this.interceptorRequest
+    let interceptorResponse = this.interceptorResponse
 
     // 判断调用的是否为 module 中 api
     if ( apiName.includes('.') ) {
@@ -127,6 +136,10 @@ class Netrol {
         // 如果模块上存在 request（请求拦截器），则进行替换
         if (theModule.config.request) {
           interceptorRequest = theModule.config.request
+        }
+        // 如果模块上存在 response（响应拦截器），则进行替换
+        if (theModule.config.response) {
+          interceptorResponse = theModule.config.response
         }
       }
       
@@ -164,9 +177,10 @@ class Netrol {
       leach,
       ...api,
     }
-    // data 和 interceptorRequest 存在，则添加到 config 上
+    // data / interceptorRequest / interceptorResponse 存在，则添加到 config 上
     if (data) config.data = this.transformData(data)
     if (interceptorRequest) config.interceptorRequest = interceptorRequest
+    if (interceptorResponse) config.interceptorResponse = interceptorResponse
 
     // 返回
     return config
