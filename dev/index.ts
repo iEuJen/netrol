@@ -5,7 +5,12 @@ netrol('error', { a: 233 })
 .then(res => {
   console.log(res)
 })
+
 netrol('post1', { a: 233 })
 .then(res => {
   console.log(res)
 })
+// netrol('post1', { a: 233 })
+// .then(res => {
+//   console.log(res)
+// })

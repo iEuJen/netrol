@@ -8,6 +8,9 @@ import defaultHeaders from './headers'
 import requestPool from './requestPool'
 // 引入工具方法
 import utils from '@/utils/index'
+// 引入错误创建工具
+import createError, { ErrorType } from './createError'
+createError('apis is a must in constructor', ErrorType.FAIL)
 /**
  * Netrol 对象
  */
@@ -34,11 +37,10 @@ class Netrol {
   constructor (options: NetrolOptions) {
     let { apis, leach, module, config = {} } = options
     let { headers, baseUrl, request, response } = config
-    // console.log(request)
+
     // 检查 apis 是否存在
-    if (!apis) {
-      throw new Error('The create method needs to accept a options object with apis object; create 方法需要接受一个带有 apis属性 的配置对象')
-    }
+    if (!apis) throw createError('apis is a must in constructor', ErrorType.FAIL)
+
     // 初始化数据
     this.apis = apis
     this.headers = {
@@ -62,7 +64,7 @@ class Netrol {
     let chain = null
     
     // 判断是否该请求是否正在执行
-    if ( requestPool.isExist(apiName) ) return Promise.resolve(false)
+    if ( requestPool.isExist(apiName) ) return createError('Triggered throttle; 触发了节流', ErrorType.THROTTLE, true)
     // 将 apiname 添加到请求池
     requestPool.push(apiName)
 
@@ -128,7 +130,7 @@ class Netrol {
       let theModule = this.modules[module]
 
       // 判断传递的 module 是否存在
-      if (!theModule) return Promise.reject(new Error(`module ${module} is not exist; 模块 ${module} 不存在`))
+      if (!theModule) return createError(`module ${module} does not exist; 模块 ${module} 不存在`, ErrorType.FAIL, true)
 
       // 判断模块上是否存在配置项
       if (theModule.config) {
@@ -163,13 +165,13 @@ class Netrol {
     }
 
     // 判断是否找到对应 api
-    if (!api) return Promise.reject(new Error(`api ${apiName} is not exist; 接口 ${apiName} 不存在`))
+    if (!api) return createError(`api ${apiName} does not exist; 接口 ${apiName} 不存在`, ErrorType.FAIL, true)
 
     // 深复制 api
     api = utils.deepCopy(api)
 
-    // 将 api.method 的值，转为英文小写
-    api.method = api.method.toLowerCase()
+    // 将 api.method 的值，转为英文小写, method 存在，默认调用 get
+    api.method = !api.method ? 'get' : api.method.toLowerCase()
     // 合并 baseUrl 和 api.url
     api.url = `${baseUrl}${api.url}`
     // 合并 headers 和 api.headers

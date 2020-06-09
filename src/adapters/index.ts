@@ -5,6 +5,8 @@ import requestPool from '@/core/requestPool'
 import utils from '@/utils/index'
 // 引入生成响应数据的函数
 import responseDataCreate from '@/core/responseDataCreate'
+// 引入创建一个错误
+import createError, { ErrorType } from '@/core/createError'
 
 export default function (config: Record<string, any>): Promise<any> {
   // 解构配置项
@@ -40,7 +42,7 @@ export default function (config: Record<string, any>): Promise<any> {
       // 移除请求池中对应的api
       requestPool.delete(config.apiName)
 
-      reject(new Error('a error'))
+      reject( createError('Network Error', ErrorType.FAIL) )
       xhr = null
     }
     

@@ -1,4 +1,5 @@
 import utils from '@/utils/index'
+import createError, { ErrorType } from './createError'
 /**
  * 状态捕获器
  */
@@ -15,7 +16,7 @@ class Catcher {
     if ( !utils.isOwnProp(this.targets, code) ) {
       this.targets[code] = exec
     } else {
-      throw new Error(`The catcher of status code ${code} already exists`)
+      throw createError(`The catcher of status code ${code} already exists`, ErrorType.FAIL)
     }
   }
 

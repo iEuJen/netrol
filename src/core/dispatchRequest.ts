@@ -2,6 +2,8 @@
 import adapters from '@/adapters/index'
 // 导入捕获器
 import catcher from '@/core/catcher'
+// 导入错误创建
+import createError, { ErrorType } from './createError'
 
 export default function (config: Record<string, any>) {
   // console.log(config)
@@ -14,9 +16,9 @@ export default function (config: Record<string, any>) {
     } else {
       let result = catcher.trigger(res.status)
       if (result) {
-        return Promise.reject(new Error('be catched'))
+        return createError(`don't worry, error ${res.status} Already processed`, ErrorType.CATCHED, true)
       } else {
-        return Promise.reject(res.statusText)
+        return createError(`request failed with status code ${res.status}`, ErrorType.STATUS, true, { code: res.status })
       }
     }
   })
