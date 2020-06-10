@@ -10,7 +10,7 @@ import requestPool from './requestPool'
 import utils from '@/utils/index'
 // 引入错误创建工具
 import createError, { ErrorType } from './createError'
-createError('apis is a must in constructor', ErrorType.FAIL)
+
 /**
  * Netrol 对象
  */
@@ -29,10 +29,8 @@ class Netrol {
   interceptorRequest: Function
   // 响应拦截器
   interceptorResponse: Function
-  // 超时时间
+  // 超时时限
   timeout: Number
-  // 是否开启节流
-  throttle: Boolean
 
   /**
    * 构造函数
@@ -40,7 +38,7 @@ class Netrol {
    */
   constructor (options: NetrolOptions) {
     let { apis, leach, module, config = {} } = options
-    let { headers, baseUrl, request, response, timeout, throttle = true } = config
+    let { headers, baseUrl, request, response, timeout } = config
 
     // 检查 apis 是否存在
     if (!apis) throw createError('apis is required in constructor', ErrorType.FAIL)
@@ -57,7 +55,6 @@ class Netrol {
     this.timeout = timeout || 0
     this.interceptorRequest = request
     this.interceptorResponse = response
-    this.throttle = throttle
   }
 
   /**
@@ -70,7 +67,7 @@ class Netrol {
     let chain = null
     
     // 判断是否该请求是否正在执行
-    if ( this.throttle && requestPool.isExist(apiName) ) return createError('Triggered throttle;', ErrorType.THROTTLE, true)
+    if ( requestPool.isExist(apiName) ) return createError('Triggered throttle;', ErrorType.THROTTLE, true)
     // 将 apiname 添加到请求池
     requestPool.push(apiName)
 

@@ -5,7 +5,7 @@ interface Config {
   timeout?: Number, // 超时时间
   request?: Function, // 请求拦截器
   response?: Function, // 响应拦截器
-  throttle?: Boolean, // 是否开启节流
+  // throttle?: Boolean, // 是否开启节流，此功能也许不可开放
 }
 // Netrol 模块详情
 interface ModuleDetail {

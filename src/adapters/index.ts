@@ -9,6 +9,8 @@ import responseDataCreate from '@/core/responseDataCreate'
 import createError, { ErrorType } from '@/core/createError'
 // 引入捕获器
 import catcher from '@/core/catcher'
+// 引入取消xhr请求对象
+import cancelRequest from '@/core/cancelRequest'
 
 export default function (config: Record<string, any>): Promise<any> {
   // 解构配置项
@@ -41,6 +43,8 @@ export default function (config: Record<string, any>): Promise<any> {
       
       // 移除请求池中对应的api
       requestPool.delete(apiName)
+      // 移除对应xhr
+      cancelRequest.remove(apiName)
 
       resolve( responseDataCreate(xhr) )
       xhr = null
@@ -50,6 +54,8 @@ export default function (config: Record<string, any>): Promise<any> {
     xhr.ontimeout = function () {
       // 移除请求池中对应的api
       requestPool.delete(apiName)
+      // 移除对应xhr
+      cancelRequest.remove(apiName)
 
       // 执行超时处理器
       catcher.timeoutHander && catcher.timeoutHander({
@@ -64,18 +70,34 @@ export default function (config: Record<string, any>): Promise<any> {
       xhr = null
     }
 
-    // 报错
+    // 请求报错
     xhr.onerror = function () {
       // 移除请求池中对应的api
       requestPool.delete(apiName)
+      // 移除对应xhr
+      cancelRequest.remove(apiName)
 
       reject( createError('Network Error', ErrorType.FAIL) )
+      xhr = null
+    }
+
+    // 请求被取消
+    xhr.onabort = function () {
+      // 移除请求池中对应的api
+      requestPool.delete(apiName)
+      // 移除对应xhr
+      cancelRequest.remove(apiName)
+
+      reject( createError('Request cancelled', ErrorType.CANCELED) )
       xhr = null
     }
     
     if (!data) {
       data = null
     }
+
+    // 添加xhr对象到 cancelRequest
+    cancelRequest.add(apiName, xhr)
 
     xhr.send(data)
   })

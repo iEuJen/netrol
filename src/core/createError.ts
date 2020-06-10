@@ -1,10 +1,11 @@
 // 错误类型的枚举
 enum ErrorType {
-  CATCHED = 0, // 已经通过 toCatch 函数（或者其他方式拦截）的错误
+  CATCHED = 0, // 已经通过 toCatch 函数（或者其他方式拦截）
   FAIL = 1, // 一般错误
   THROTTLE = 2, // 触发节流
   STATUS = 3, // 服务器状态码错误
   TIMEOUT = 4, // 超时错误
+  CANCELED = 5, // 请求已被取消
 }
 
 /**
@@ -14,7 +15,7 @@ enum ErrorType {
  * @param isPromise 是否返回 promise.reject
  * @param extra 扩展对象，用于特殊处理
  */
-export default function (
+function createError (
   message: string,
   type: ErrorType,
   isPromise: Boolean = false,
@@ -32,7 +33,8 @@ export default function (
     FAIL: ErrorType.FAIL,
     THROTTLE: ErrorType.THROTTLE,
     STATUS: ErrorType.STATUS,
-    TIMEOUT: ErrorType.TIMEOUT
+    TIMEOUT: ErrorType.TIMEOUT,
+    CANCELED: ErrorType.CANCELED
   }
 
   // 状态码错误， 需要见状态码挂载到错误对象上
@@ -60,6 +62,10 @@ export default function (
   return error
 }
 
+// 导出函数
+export default createError
+
+// 导出错误类型
 export {
   ErrorType
 }
