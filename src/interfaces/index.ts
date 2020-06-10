@@ -2,8 +2,10 @@
 interface Config {
   baseUrl?: string, // url默认部分（域名）
   headers?: Record<string, any>, // 请求头
+  timeout?: Number, // 超时时间
   request?: Function, // 请求拦截器
   response?: Function, // 响应拦截器
+  throttle?: Boolean, // 是否开启节流
 }
 // Netrol 模块详情
 interface ModuleDetail {

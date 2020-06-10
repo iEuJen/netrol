@@ -6,5 +6,9 @@ export default {
   error: {
     url: '/error',
     method: 'post'
+  },
+  timeout: {
+    url: '/timeout',
+    get: 'post'
   }
 }

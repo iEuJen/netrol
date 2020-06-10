@@ -29,6 +29,10 @@ class Netrol {
   interceptorRequest: Function
   // 响应拦截器
   interceptorResponse: Function
+  // 超时时间
+  timeout: Number
+  // 是否开启节流
+  throttle: Boolean
 
   /**
    * 构造函数
@@ -36,10 +40,10 @@ class Netrol {
    */
   constructor (options: NetrolOptions) {
     let { apis, leach, module, config = {} } = options
-    let { headers, baseUrl, request, response } = config
+    let { headers, baseUrl, request, response, timeout, throttle = true } = config
 
     // 检查 apis 是否存在
-    if (!apis) throw createError('apis is a must in constructor', ErrorType.FAIL)
+    if (!apis) throw createError('apis is required in constructor', ErrorType.FAIL)
 
     // 初始化数据
     this.apis = apis
@@ -50,8 +54,10 @@ class Netrol {
     this.leach = leach
     this.baseUrl = baseUrl || ''
     this.modules = module
+    this.timeout = timeout || 0
     this.interceptorRequest = request
     this.interceptorResponse = response
+    this.throttle = throttle
   }
 
   /**
@@ -59,12 +65,12 @@ class Netrol {
    * @param apiName 调用指定 apis 
    * @param data 传递给服务器的数据
    */
-  request (apiName: string, data: object) {
+  request (apiName: string, data: any) {
     let promise = null
     let chain = null
     
     // 判断是否该请求是否正在执行
-    if ( requestPool.isExist(apiName) ) return createError('Triggered throttle; 触发了节流', ErrorType.THROTTLE, true)
+    if ( this.throttle && requestPool.isExist(apiName) ) return createError('Triggered throttle;', ErrorType.THROTTLE, true)
     // 将 apiname 添加到请求池
     requestPool.push(apiName)
 
@@ -123,6 +129,7 @@ class Netrol {
     let baseUrl = this.baseUrl
     let interceptorRequest = this.interceptorRequest
     let interceptorResponse = this.interceptorResponse
+    let timeout = this.timeout
 
     // 判断调用的是否为 module 中 api
     if ( apiName.includes('.') ) {
@@ -152,6 +159,10 @@ class Netrol {
         // 如果模块上存在 response（响应拦截器），则进行替换
         if (theModule.config.response) {
           interceptorResponse = theModule.config.response
+        }
+        // 如果模块上存在 timeout，则进行替换
+        if (theModule.config.timeout) {
+          timeout = theModule.config.timeout
         }
       }
       
@@ -186,6 +197,7 @@ class Netrol {
     config = {
       apiName,
       headers,
+      timeout,
       leach,
       ...api,
     }

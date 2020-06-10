@@ -5,7 +5,7 @@ import createError, { ErrorType } from './createError'
  */
 class Catcher {
   targets: Record<number, Function> = {}
-
+  timeoutHander: Function // 超时处理函数
   /**
    * 捕获状态码
    * @param code 要捕获的状态码
@@ -31,6 +31,13 @@ class Catcher {
       return true
     }
     return false
+  }
+
+  /**
+   * 注册超时处理函数
+   */
+  registerTimeoutHander (hander: Function) {
+    this.timeoutHander = hander
   }
 }
 

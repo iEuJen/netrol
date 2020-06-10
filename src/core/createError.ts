@@ -4,6 +4,7 @@ enum ErrorType {
   FAIL = 1, // 一般错误
   THROTTLE = 2, // 触发节流
   STATUS = 3, // 服务器状态码错误
+  TIMEOUT = 4, // 超时错误
 }
 
 /**
@@ -11,6 +12,7 @@ enum ErrorType {
  * @param message 错误信息
  * @param type 错误类型
  * @param isPromise 是否返回 promise.reject
+ * @param extra 扩展对象，用于特殊处理
  */
 export default function (
   message: string,
@@ -29,7 +31,8 @@ export default function (
     CATCHED: ErrorType.CATCHED,
     FAIL: ErrorType.FAIL,
     THROTTLE: ErrorType.THROTTLE,
-    STATUS: ErrorType.STATUS
+    STATUS: ErrorType.STATUS,
+    TIMEOUT: ErrorType.TIMEOUT
   }
 
   // 状态码错误， 需要见状态码挂载到错误对象上

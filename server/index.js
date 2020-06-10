@@ -38,7 +38,7 @@ app.get('/timeout', (req, res) => {
       code: 0,
       data: 666
     })
-  }, 20000)
+  }, 10000)
 })
 
 app.listen(port, () => {
