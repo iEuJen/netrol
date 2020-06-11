@@ -9,34 +9,37 @@ app.use(bodyParser.urlencoded({extended: false}))
 
 app.get('/', (req, res) => res.send('Hello World!'))
 
-app.post('/post1', (req, res) => {
+// 测试接口
+app.get('/text', (req, res) => {
+  res.send('普通文本信息')
+})
+
+app.post('/post', (req, res) => {
   res.json({
     code: 1,
-    data: 'post1',
-    body: req.body
+    result: {
+      query: req.body
+    },
   })
 })
-app.post('/post2', (req, res) => {
+
+app.post('/code', (req, res) => {
   res.json({
-    code: 1,
-    data: 'post2',
-    body: req.body
+    code: 0,
+    result: '状态0，错误',
   })
 })
+
 app.post('/error', (req, res) => {
   res.status(500)
-  res.json({
-    code: 1,
-    data: 'error',
-    body: req.body
-  })
+  res.send()
 })
 
 app.get('/timeout', (req, res) => {
   setTimeout(() => {
     res.json({
       code: 0,
-      data: 666
+      data: 'timeout'
     })
   }, 10000)
 })

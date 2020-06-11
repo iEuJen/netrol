@@ -1,40 +1,65 @@
-/* eslint-disable */
-import Netrol, { toCatch, timeoutHander, cancel, interceptor } from '../../index'
+import Netrol from '@/../index'
 
-import apis from './apis'
-import headers from './headers'
-import leach from './leach'
+const apis = {
+  text: {
+    method: 'get',
+    url: '/text'
+  },
+  post: {
+    method: 'post',
+    url: '/post'
+  },
+  code: {
+    method: 'post',
+    url: '/code'
+  },
+  error: {
+    method: 'post',
+    url: '/error'
+  },
+  timeout: {
+    method: 'get',
+    url: '/timeout'
+  },
+}
 
-import moduleA from './moduleA/index'
+const leach = {
+  post (res) {
+    console.log('leach', res)
+    return res
+  },
+  code (res) {
+    console.log('leach', res)
+    return res
+  }
+}
 
-// toCatch(500, function () {
-//   console.log('catch, 500')
-// })
-timeoutHander((data) => {
-  console.log('--', data)
-})
-
-interceptor.request((config) => {
-  console.log('i', config)
-  return config
-})
-interceptor.response((res) => {
-  console.log('i', res)
-  return res
-})
-
-setTimeout(() => {
-  console.log(cancel('timeout'))
-}, 2000)
+const moduleA = {
+  apis: {
+    post: {
+      method: 'post',
+      url: '/post'
+    },
+  },
+  leach: {
+    post (res) {
+      console.log(res)
+      return res.body
+    }
+  }
+}
 
 export default Netrol.create({
-  config: {
-    baseUrl: '/apis',
-    headers,
-  },
   apis,
   leach,
   module: {
     moduleA
-  }
+  },
+  config: {
+    baseUrl: '/apis',
+    headers: {
+      token: '233666fjg'
+    },
+    timeout: 5000
+  },
 })

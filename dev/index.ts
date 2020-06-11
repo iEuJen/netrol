@@ -1,32 +1,78 @@
 /* eslint-disable */
 import netrol from './callsever/index'
+import { toCatch, timeoutHander, cancel, interceptor } from '@/../index'
 
-// netrol('error', { a: 233 })
-// .then(res => {
+// netrol('moduleA.post', { a: 2 })
+// .then( res => {
 //   console.log(res)
 // })
-
-// netrol('timeout', { a: 233 })
-// .then(res => {
-//   console.log(res)
-// })
-// .catch(err => {
+// .catch( err => {
 //   console.log(err.toJSON())
 // })
-netrol('post1', { a: 233 })
-.then(res => {
+interceptor.request((config) => {
+  console.log('ireq', config)
+  // let f = new FormData()
+  // f.append('a', '233')
+  // config.data = f
+  return config
+})
+interceptor.response(res => {
+  console.log('ires', res)
+  if (res.body.code === 1) {
+    return res.body
+  } else {
+    return
+  }
+})
+
+netrol('post', { a: 2 })
+.then( res => {
   console.log(res)
+})
+.catch( err => {
+  console.log(err.toJSON())
+})
+netrol('code', { a: 2 })
+.then( res => {
+  console.log(res)
+})
+.catch( err => {
+  console.log(err.toJSON())
+})
+
+// netrol('text', { a: 2 })
+// .then( res => {
+//   console.log(res)
+// })
+// .catch( err => {
+//   console.log(err.toJSON())
+// })
+
+// netrol('error', { a: 2 })
+// .then( res => {
+//   console.log(res)
+// })
+// .catch( err => {
+//   console.log(err.toJSON())
+// })
+
+// netrol('timeout', { a: 2 })
+// .then( res => {
+//   console.log(res)
+// })
+// .catch( err => {
+//   console.log(err.toJSON())
+// })
+
+timeoutHander((info) => {
+  console.log(info)
+})
+
+toCatch(500, () => {
+  console.log(500, 500)
 })
 
 document.body.style.height = '100vh'
-document.body.addEventListener('click', async function () {
-  try {
-    let res = await netrol('timeout', { a: 233 })
-    console.log(res)
-  } catch (err) {
-    console.log(err.toJSON())
-  }
-  // .then(res => {
-  //   console.log(res)
-  // })
+document.body.addEventListener('click', () => {
+  cancel('timeout')
 })

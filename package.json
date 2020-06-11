@@ -1,13 +1,14 @@
 {
   "name": "netrol",
-  "version": "0.0.0",
+  "version": "0.1.0-beta.1",
   "description": "a xhr request library",
   "main": "dist/netrol.min.js",
   "module": "src/index.ts",
   "keywords": [
     "typescript",
     "js",
-    "xhr"
+    "xhr",
+    "es6"
   ],
   "scripts": {
     "dev": "npm run server | webpack-dev-server",
@@ -16,6 +17,7 @@
     "build-min": "cross-env NODE_ENV=production webpack",
     "server": "node server"
   },
+  "files": ["dist"],
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/plugin-transform-runtime": "^7.9.6",
