@@ -32,7 +32,7 @@ function getPlugins () {
 }
 
 // 入口文件, 开发环境执行 debug 目录下的代码, 生产版本直接打包 src 目录下的代码
-const entry = production || debug ? "./src" : "./dev"
+const entry = production || debug ? "./index" : "./dev"
 
 module.exports = {
   mode: "production",
@@ -63,6 +63,14 @@ module.exports = {
   },
   devServer: {
     port: 80,
+    proxy: {
+      '/apis': {
+        target: 'http://localhost:3000',
+        pathRewrite: {
+          '^/apis' : ''
+        },
+      },
+    }
   },
   resolve: {
     alias: {

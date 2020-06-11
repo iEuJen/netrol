@@ -1,5 +1,4 @@
 # 注意!
 
-## 尚不可使用
-## 项目正在开发中
-## Project under development
+## 当前为 beta 版本
+## 文档正在撰写中
