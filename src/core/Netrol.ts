@@ -1,5 +1,5 @@
 // 导入接口
-import { NetrolOptions } from '@/interfaces/index'
+import { NetrolOptions, ModuleDetail, Modules, InterceptorRequest, InterceptorResponse } from '@/interfaces/index'
 // 导入请求
 import dispatchRequest from './dispatchRequest'
 // 导入默认请求头
@@ -24,13 +24,14 @@ class Netrol {
   // 基本url
   baseUrl: string
   // 模块
-  modules: object
-  // 请求拦截器
-  interceptorRequest: Function
-  // 响应拦截器
-  interceptorResponse: Function
+  modules: Modules
   // 超时时限
   timeout: Number
+
+  // 请求拦截器
+  static interceptorRequest: InterceptorRequest
+  // 响应拦截器
+  static interceptorResponse: InterceptorResponse
 
   /**
    * 构造函数
@@ -38,7 +39,7 @@ class Netrol {
    */
   constructor (options: NetrolOptions) {
     let { apis, leach, module, config = {} } = options
-    let { headers, baseUrl, request, response, timeout } = config
+    let { headers, baseUrl, timeout } = config
 
     // 检查 apis 是否存在
     if (!apis) throw createError('apis is required in constructor', ErrorType.FAIL)
@@ -53,8 +54,6 @@ class Netrol {
     this.baseUrl = baseUrl || ''
     this.modules = module
     this.timeout = timeout || 0
-    this.interceptorRequest = request
-    this.interceptorResponse = response
   }
 
   /**
@@ -94,16 +93,21 @@ class Netrol {
    */
   mergePromiseChain (config: Record<string, any>) {
     // 将请求函数，添加到 promise 链数组中
-    let chain = [dispatchRequest]
+    let chain: Array<Function> = [dispatchRequest]
+
     // 如果存在 interceptorRequest 则添加到 promise 链的最前面
-    if (config.interceptorRequest) {
-      chain.unshift(config.interceptorRequest)
-      delete config.interceptorRequest
+    if (Netrol.interceptorRequest) {
+      chain.unshift(Netrol.interceptorRequest)
     }
     // 如果存在 interceptorResponse 则添加到 promise 连上
-    if (config.interceptorResponse) {
-      chain.push(config.interceptorResponse)
-      delete config.interceptorResponse
+    if (Netrol.interceptorResponse) {
+      chain.push(Netrol.interceptorResponse)
+
+      // 同时添加后续处理函数，当返回值为空值的时候，抛出异常，终止promise
+      chain.push((res) => {
+        if (!res) return createError('the interceptorResponse return value is void, the promise has been cancelled', ErrorType.CATCHED, true)
+        return res
+      })
     }
 
     // 存在 leach，则添加到 promise 链中
@@ -111,6 +115,7 @@ class Netrol {
       chain.push(config.leach)
     }
     delete config.leach
+    
     return chain
   }
 
@@ -124,14 +129,12 @@ class Netrol {
     let leach = null
     let headers = utils.deepCopy(this.headers)
     let baseUrl = this.baseUrl
-    let interceptorRequest = this.interceptorRequest
-    let interceptorResponse = this.interceptorResponse
     let timeout = this.timeout
 
     // 判断调用的是否为 module 中 api
     if ( apiName.includes('.') ) {
       let [module, name] = apiName.split('.')
-      let theModule = this.modules[module]
+      let theModule: ModuleDetail = this.modules[module]
 
       // 判断传递的 module 是否存在
       if (!theModule) return createError(`module ${module} does not exist; 模块 ${module} 不存在`, ErrorType.FAIL, true)
@@ -140,7 +143,7 @@ class Netrol {
       if (theModule.config) {
         // 模块上如果存在 baseUrl，则更改 baseUrl，则更改
         if (theModule.config.baseUrl) {
-          baseUrl = theModule.baseUrl
+          baseUrl = theModule.config.baseUrl
         }
         // 模块上如果存在 headers，则合并
         if (theModule.config.headers) {
@@ -148,14 +151,6 @@ class Netrol {
             ...headers,
             ...utils.deepCopy(theModule.config.headers)
           }
-        }
-        // 如果模块上存在 request（请求拦截器），则进行替换
-        if (theModule.config.request) {
-          interceptorRequest = theModule.config.request
-        }
-        // 如果模块上存在 response（响应拦截器），则进行替换
-        if (theModule.config.response) {
-          interceptorResponse = theModule.config.response
         }
         // 如果模块上存在 timeout，则进行替换
         if (theModule.config.timeout) {
@@ -198,10 +193,8 @@ class Netrol {
       leach,
       ...api,
     }
-    // data / interceptorRequest / interceptorResponse 存在，则添加到 config 上
+    // data 存在，则添加到 config 上
     if (data) config.data = this.transformData(data)
-    if (interceptorRequest) config.interceptorRequest = interceptorRequest
-    if (interceptorResponse) config.interceptorResponse = interceptorResponse
 
     // 返回
     return config

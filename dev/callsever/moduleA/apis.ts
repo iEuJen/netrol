@@ -1,6 +1,6 @@
 export default {
-  post3: {
-    url: '/post3',
+  post2: {
+    url: '/post2',
     method: 'post'
   },
 }

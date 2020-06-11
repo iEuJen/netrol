@@ -1,4 +1,5 @@
-import Netrol, { toCatch, timeoutHander, cancel } from '../../index'
+/* eslint-disable */
+import Netrol, { toCatch, timeoutHander, cancel, interceptor } from '../../index'
 
 import apis from './apis'
 import headers from './headers'
@@ -13,23 +14,23 @@ timeoutHander((data) => {
   console.log('--', data)
 })
 
+interceptor.request((config) => {
+  console.log('i', config)
+  return config
+})
+interceptor.response((res) => {
+  console.log('i', res)
+  return res
+})
+
 setTimeout(() => {
   console.log(cancel('timeout'))
 }, 2000)
-/* eslint-disable */
+
 export default Netrol.create({
   config: {
     baseUrl: '/apis',
     headers,
-    // timeout: 5000,
-    response (res) {
-      console.log(res)
-      return res
-    },
-    request (config) {
-      // console.log(config)
-      return config
-    }
   },
   apis,
   leach,
