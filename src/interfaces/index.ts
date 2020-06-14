@@ -1,14 +1,20 @@
+// transformData 数据转换
+interface TransformData {
+  (data: Record<string, any>): any
+}
 // config
 interface Config {
   baseUrl?: string, // url默认部分（域名）
   headers?: Record<string, any>, // 请求头
-  timeout?: Number, // 超时时间
+  timeout?: number, // 超时时间
+  defaultMethod?: string, // 默认请求方法
   // throttle?: Boolean, // 是否开启节流，此功能也许不可开放
 }
 // Netrol 模块详情
 interface ModuleDetail {
   apis: Record<string, any>,
   leach?: Record<string, any>,
+  transformData?: TransformData,
   config?: Config,
 }
 // Netrol 模块
@@ -19,6 +25,7 @@ interface Modules {
 interface NetrolOptions {
   apis: Record<string, any>,
   leach?: Record<string, any>,
+  transformData?: TransformData,
   module?: Modules,
   config?: Config,
 }
@@ -38,4 +45,5 @@ export {
   Modules,
   InterceptorRequest,
   InterceptorResponse,
+  TransformData,
 }

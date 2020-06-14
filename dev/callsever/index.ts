@@ -1,10 +1,8 @@
+/* eslint-disable */
 import Netrol from '@/../index'
 
 const apis = {
-  text: {
-    method: 'get',
-    url: '/text'
-  },
+  text: '/text',
   post: {
     method: 'post',
     url: '/post'
@@ -46,6 +44,12 @@ const moduleA = {
       console.log(res)
       return res.body
     }
+  },
+  transformData (data) {
+    console.log(data)
+    let fd = new FormData()
+    fd.append('a', 'FormData')
+    return fd
   }
 }
 
@@ -53,13 +57,13 @@ export default Netrol.create({
   apis,
   leach,
   module: {
-    moduleA
+    moduleA,
   },
   config: {
     baseUrl: '/apis',
     headers: {
       token: '233666fjg'
     },
-    timeout: 5000
+    timeout: 5000,
   },
 })
