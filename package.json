@@ -1,6 +1,6 @@
 {
   "name": "netrol",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0-beta.3",
   "description": "a xhr request library",
   "main": "dist/netrol.min.js",
   "module": "src/index.ts",
