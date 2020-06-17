@@ -4,7 +4,7 @@
 
 ## 通过脚手架安装
 
-> npm install netrol -D
+> npm install netrol-cli -D
 
 > npx netrol
 
