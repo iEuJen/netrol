@@ -209,7 +209,7 @@ class Netrol {
       let url = `${baseUrl}${api}`
       api = {
         url,
-        method: defaultMethod
+        method: defaultMethod.toLowerCase()
       }
     }
 
@@ -230,11 +230,15 @@ class Netrol {
       ...api,
     }
     
-    // data 存在，则将其装换后添加到 config 上
-    if (data && !transformData) {
-      config.data = this.defaultTransformData(data)
-    } else if (data && transformData) {
-      config.data = transformData(data)
+    if (config.method !== 'get') {
+      // data 存在，则将其装换后添加到 config 上
+      if (data && !transformData) {
+        config.data = this.defaultTransformData(data)
+      } else if (data && transformData) {
+        config.data = transformData(data)
+      }
+    } else if (data) {
+      config.url = utils.appendQueryToUrl(config.url, data)
     }
 
     // 返回

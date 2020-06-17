@@ -40,13 +40,13 @@ netrol('post', { a: 2 })
 //   console.log(err.toJSON())
 // })
 
-// netrol('text', { a: 2 })
-// .then( res => {
-//   console.log(res)
-// })
-// .catch( err => {
-//   console.log(err.toJSON())
-// })
+netrol('text', { a: 2, b: 6 })
+.then( res => {
+  console.log(res)
+})
+.catch( err => {
+  console.log(err.toJSON())
+})
 
 // netrol('error', { a: 2 })
 // .then( res => {

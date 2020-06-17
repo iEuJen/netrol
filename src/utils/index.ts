@@ -78,6 +78,29 @@ function isOwnProp (target: Record<string, any>, prop: any) {
   return Object.prototype.hasOwnProperty.call(target, prop)
 }
 
+/**
+ * 往url上添加查询参数
+ * @param url 要添加的url
+ * @param query 参数对象
+ */
+function appendQueryToUrl (url: string, query: Record<string, any>): string {
+  // 判断 url 上是否已经包含响应的参数
+  if ( url.includes('?') ) {
+    Object.entries(query).forEach(([key, val]) => {
+      url += `&${key}=${val}`
+    })
+  } else {
+    Object.entries(query).forEach(([key, val], i) => {
+      if (i === 0) {
+        url += `?${key}=${val}`
+      } else {
+        url += `&${key}=${val}`
+      }
+    })
+  }
+  return url
+}
+
 export default {
   deepCopy,
   isObject,
@@ -88,4 +111,5 @@ export default {
   isFile,
   isBlob,
   isOwnProp,
+  appendQueryToUrl,
 }
