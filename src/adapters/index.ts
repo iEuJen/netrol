@@ -59,7 +59,7 @@ export default function (config: Record<string, any>): Promise<any> {
 
       // 执行超时处理器
       catcher.timeoutHander && catcher.timeoutHander({
-        name: apiName,
+        apiName,
         method,
         url,
         timeout,

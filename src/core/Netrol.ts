@@ -1,5 +1,12 @@
 // 导入接口
-import { NetrolOptions, ModuleDetail, Modules, InterceptorRequest, InterceptorResponse } from '@/interfaces/index'
+import { 
+  NetrolOptions,
+  ModuleDetail,
+  Modules,
+  InterceptorRequest,
+  InterceptorResponse,
+  TransformData 
+} from '@/interfaces/index'
 // 导入请求
 import dispatchRequest from './dispatchRequest'
 // 导入默认请求头
@@ -26,7 +33,12 @@ class Netrol {
   // 模块
   modules: Modules
   // 超时时限
-  timeout: Number
+  timeout: number
+  // 默认请求方法
+  defaultMethod: string
+
+  // 数据转换方法
+  transformData: TransformData
 
   // 请求拦截器
   static interceptorRequest: InterceptorRequest
@@ -38,8 +50,8 @@ class Netrol {
    * @param options Netrol 实例的配置项
    */
   constructor (options: NetrolOptions) {
-    let { apis, leach, module, config = {} } = options
-    let { headers, baseUrl, timeout } = config
+    let { apis, leach, module, transformData, config = {} } = options
+    let { headers, baseUrl, timeout, defaultMethod } = config
 
     // 检查 apis 是否存在
     if (!apis) throw createError('apis is required in constructor', ErrorType.FAIL)
@@ -54,6 +66,8 @@ class Netrol {
     this.baseUrl = baseUrl || ''
     this.modules = module
     this.timeout = timeout || 0
+    this.defaultMethod = defaultMethod || 'get'
+    this.transformData = transformData
   }
 
   /**
@@ -130,6 +144,9 @@ class Netrol {
     let headers = utils.deepCopy(this.headers)
     let baseUrl = this.baseUrl
     let timeout = this.timeout
+    let defaultMethod = this.defaultMethod
+    // 数据转换函数
+    let transformData = this.transformData
 
     // 判断调用的是否为 module 中 api
     if ( apiName.includes('.') ) {
@@ -138,6 +155,11 @@ class Netrol {
 
       // 判断传递的 module 是否存在
       if (!theModule) return createError(`module ${module} does not exist; 模块 ${module} 不存在`, ErrorType.FAIL, true)
+
+      // 如果 transformData 方法存在，则重新赋值
+      if (theModule.transformData) {
+        transformData = theModule.transformData
+      }
 
       // 判断模块上是否存在配置项
       if (theModule.config) {
@@ -156,6 +178,10 @@ class Netrol {
         if (theModule.config.timeout) {
           timeout = theModule.config.timeout
         }
+        // 判断模块上是否存在默认请求方法，存在则替换
+        if (theModule.config.defaultMethod) {
+          defaultMethod = theModule.config.defaultMethod
+        }
       }
       
       // 提取 api 和 leach
@@ -170,13 +196,23 @@ class Netrol {
     // 判断是否找到对应 api
     if (!api) return createError(`api ${apiName} does not exist; 接口 ${apiName} 不存在`, ErrorType.FAIL, true)
 
-    // 深复制 api
-    api = utils.deepCopy(api)
+    // 判断api是否为对象
+    if ( utils.isObject(api) ) {
+      // 深复制 api
+      api = utils.deepCopy(api)
+      // 将 api.method 的值，转为英文小写, method 存在，默认调用 get
+      api.method = !api.method ? defaultMethod : api.method.toLowerCase()
+      // 合并 baseUrl 和 api.url
+      api.url = `${baseUrl}${api.url}`
+    } else {
+      // 不是对象，则使用默认的方法
+      let url = `${baseUrl}${api}`
+      api = {
+        url,
+        method: defaultMethod.toLowerCase()
+      }
+    }
 
-    // 将 api.method 的值，转为英文小写, method 存在，默认调用 get
-    api.method = !api.method ? 'get' : api.method.toLowerCase()
-    // 合并 baseUrl 和 api.url
-    api.url = `${baseUrl}${api.url}`
     // 合并 headers 和 api.headers
     headers = {
       ...headers,
@@ -193,18 +229,27 @@ class Netrol {
       leach,
       ...api,
     }
-    // data 存在，则添加到 config 上
-    if (data) config.data = this.transformData(data)
+    
+    if (config.method !== 'get') {
+      // data 存在，则将其装换后添加到 config 上
+      if (data && !transformData) {
+        config.data = this.defaultTransformData(data)
+      } else if (data && transformData) {
+        config.data = transformData(data)
+      }
+    } else if (data) {
+      config.url = utils.appendQueryToUrl(config.url, data)
+    }
 
     // 返回
     return config
   }
 
   /**
-   * 转换请求数据
+   * 默认的转换请求数据方法
    * @param data 
    */
-  transformData (data) {
+  defaultTransformData (data) {
     // 特殊对象，直接返回
     if (utils.isFormData(data) ||
       utils.isArrayBuffer(data) ||
