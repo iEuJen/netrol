@@ -1,5 +1,5 @@
 import utils from '@/utils/index'
-import createError, { ErrorType } from './createError'
+import createError, { ErrorType } from '@/core/createError'
 
 /**
  * 进度监听器

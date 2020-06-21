@@ -1,6 +1,6 @@
 /* global  XMLHttpRequest */
 // 引入 进度监听器
-import progressListener from '@/core/progressListener'
+import progressListener from '@/helpers/progressListener'
 /**
  * 绑定 xhr 一系列上传/下载事件
  * @param type upload/download

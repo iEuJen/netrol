@@ -1,4 +1,4 @@
-import progressListener from './core/progressListener'
+import progressListener from './helpers/progressListener'
 /**
  * 添加进度监听器
  */

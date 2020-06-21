@@ -1,4 +1,4 @@
-import catcher from './core/catcher'
+import catcher from './helpers/catcher'
 import createError, { ErrorType } from './core/createError'
 /**
  * 注册超时处理函数

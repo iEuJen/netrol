@@ -8,11 +8,11 @@ import responseDataCreate from '@/core/responseDataCreate'
 // 引入创建一个错误
 import createError, { ErrorType } from '@/core/createError'
 // 引入捕获器
-import catcher from '@/core/catcher'
+import catcher from '@/helpers/catcher'
 // 引入取消xhr请求对象
-import cancelRequest from '@/core/cancelRequest'
+import cancelRequest from '@/helpers/cancelRequest'
 // 引入 进度监听器
-import progressListener from '@/core/progressListener'
+import progressListener from '@/helpers/progressListener'
 // 引入 进度事件处理
 import progress from './progress'
 

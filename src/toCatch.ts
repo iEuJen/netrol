@@ -1,4 +1,4 @@
-import catcher from '@/core/catcher'
+import catcher from '@/helpers/catcher'
 /**
  * 对外暴露捕获方法
  * @param code 状态码

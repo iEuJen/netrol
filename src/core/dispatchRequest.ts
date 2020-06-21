@@ -1,7 +1,7 @@
 // 导入适配器
 import adapters from '@/adapters/index'
 // 导入捕获器
-import catcher from '@/core/catcher'
+import catcher from '@/helpers/catcher'
 // 导入错误创建
 import createError, { ErrorType } from './createError'
 

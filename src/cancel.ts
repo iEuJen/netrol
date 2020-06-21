@@ -1,4 +1,4 @@
-import cancelRequest from './core/cancelRequest'
+import cancelRequest from './helpers/cancelRequest'
 /**
  * 取消一个请求
  */
