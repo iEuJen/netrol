@@ -3,6 +3,7 @@ import toCatch from './src/toCatch'
 import timeoutHander from './src/timeoutHander'
 import cancel from './src/cancel'
 import interceptor from './src/interceptor'
+import progressListener from './src/progressListener'
 
 export default {
   create,
@@ -10,6 +11,7 @@ export default {
   timeoutHander,
   cancel,
   interceptor,
+  progressListener,
 }
 
 export {
@@ -17,4 +19,5 @@ export {
   timeoutHander,
   cancel,
   interceptor,
+  progressListener,
 }

@@ -36,6 +36,6 @@ request('apiname', { a: 2 })
 })
 ```
 
-## 文档地址
+## 文档
 
-[netrol](https://ieujen.github.io/netrol-doc/)
+[文档地址](https://ieujen.github.io/netrol-doc/)
