@@ -186,11 +186,11 @@ class Netrol {
       
       // 提取 api 和 leach
       api = theModule.apis[name]
-      leach = theModule.leach[name]
+      leach = theModule.leach ? theModule.leach[name] : null
     } else {
       // 提取 api 和 leach
       api = this.apis[apiName]
-      leach = this.leach[apiName]
+      leach = this.leach ? this.leach[apiName] : null
     }
 
     // 判断是否找到对应 api

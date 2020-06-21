@@ -11,6 +11,10 @@ import createError, { ErrorType } from '@/core/createError'
 import catcher from '@/core/catcher'
 // 引入取消xhr请求对象
 import cancelRequest from '@/core/cancelRequest'
+// 引入 进度监听器
+import progressListener from '@/core/progressListener'
+// 引入 进度事件处理
+import progress from './progress'
 
 export default function (config: Record<string, any>): Promise<any> {
   // 解构配置项
@@ -91,7 +95,16 @@ export default function (config: Record<string, any>): Promise<any> {
       reject( createError('Request cancelled', ErrorType.CANCELED) )
       xhr = null
     }
+
+    // 判断当前 apiName 是否存在进度监听器，存在则绑定对应事件
+    if ( progressListener.isExist('upload', apiName) ) {
+      progress('upload', apiName, xhr)
+    }
+    if ( progressListener.isExist('download', apiName) ) {
+      progress('download', apiName, xhr)
+    }
     
+    // data 为空，则置为 null
     if (!data) {
       data = null
     }
