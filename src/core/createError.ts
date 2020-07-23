@@ -1,6 +1,6 @@
 // 错误类型的枚举
 enum ErrorType {
-  CATCHED = 0, // 已经通过 toCatch 函数（或者其他方式拦截）
+  STOP = 0, // promise链终止，为了不执行 then 方法中或者 await 后的程序
   FAIL = 1, // 一般错误
   THROTTLE = 2, // 触发节流
   STATUS = 3, // 服务器状态码错误
@@ -18,7 +18,7 @@ enum ErrorType {
 function createError (
   message: string,
   type: ErrorType,
-  isPromise: Boolean = false,
+  isPromise: boolean = false,
   extra?: Record<string, any>,
 ): Promise<Error> | Error {
   // 创建一个错误
@@ -29,7 +29,7 @@ function createError (
   error.type = type 
   // 错误类型的值
   error.ErrorType = {
-    CATCHED: ErrorType.CATCHED,
+    CATCHED: ErrorType.STOP,
     FAIL: ErrorType.FAIL,
     THROTTLE: ErrorType.THROTTLE,
     STATUS: ErrorType.STATUS,

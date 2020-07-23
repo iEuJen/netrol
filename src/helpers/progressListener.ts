@@ -37,7 +37,7 @@ class ProgressListener {
    * @param type 监听的类型，upload/download
    * @param name 监听的 apiname
    */
-  isExist (type: string, name: string): Boolean {
+  isExist (type: string, name: string): boolean {
     if ( utils.isOwnProp(this[type], name) ) return true
     return false
   }

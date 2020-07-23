@@ -80,7 +80,7 @@ class Netrol {
     let chain = null
     
     // 判断是否该请求是否正在执行
-    if ( requestPool.isExist(apiName) ) return createError('Triggered throttle;', ErrorType.THROTTLE, true)
+    if ( requestPool.isExist(apiName) ) return createError('Not an error; Triggered throttle;', ErrorType.THROTTLE, true)
     // 将 apiname 添加到请求池
     requestPool.push(apiName)
 
@@ -119,7 +119,7 @@ class Netrol {
 
       // 同时添加后续处理函数，当返回值为空值的时候，抛出异常，终止promise
       chain.push((res) => {
-        if (!res) return createError('the interceptorResponse return value is void, the promise has been cancelled', ErrorType.CATCHED, true)
+        if (!res) return createError('Not an error; promise stop;', ErrorType.STOP, true)
         return res
       })
     }

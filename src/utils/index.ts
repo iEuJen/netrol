@@ -18,7 +18,7 @@ function deepCopy (obj: Object): object {
  * 判断是否为对象
  * @param value 要判断的对象
  */
-function isObject (value): Boolean {
+function isObject (value): boolean {
   return value !== null && typeof value === 'object'
 }
 
@@ -26,14 +26,14 @@ function isObject (value): Boolean {
  * 判断是否为函数
  * @param value 
  */
-function isFunction (value): Boolean {
+function isFunction (value): boolean {
   return value && value instanceof Function
 }
 /**
  * 判断是否为 Formdata 对象
  * @param value 要判断的对象
  */
-function isFormData (value): Boolean {
+function isFormData (value): boolean {
   return FormData && (value instanceof FormData)
 }
 
@@ -41,7 +41,7 @@ function isFormData (value): Boolean {
  * 判断 ArrayBuffer 对象
  * @param value 要判断的对象
  */
-function isArrayBuffer (value): Boolean {
+function isArrayBuffer (value): boolean {
   return ArrayBuffer && (value instanceof ArrayBuffer)
 }
 
@@ -49,7 +49,7 @@ function isArrayBuffer (value): Boolean {
  * 判断是否为 Stream
  * @param value 要判断的对象
  */
-function isStream (value): Boolean {
+function isStream (value): boolean {
   return isObject(value) && isFunction(value.pipe)
 }
 

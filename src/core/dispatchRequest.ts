@@ -16,7 +16,7 @@ export default function (config: Record<string, any>) {
     } else {
       let result = catcher.trigger(res.status)
       if (result) {
-        return createError(`don't worry, error ${res.status} Already toCatch`, ErrorType.CATCHED, true)
+        return createError(`Not an error; promise stop; https status ${res.status} be catched`, ErrorType.STOP, true)
       } else {
         return createError(`request failed with status code ${res.status}`, ErrorType.STATUS, true, { code: res.status })
       }

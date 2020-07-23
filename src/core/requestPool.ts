@@ -9,7 +9,7 @@ class RequestPool {
    * 判断请求是否存在
    * @param name 请求的 apiname
    */
-  isExist (name: string): Boolean {
+  isExist (name: string): boolean {
     if ( this.pools.includes(name) ) return true
     return false
   }
