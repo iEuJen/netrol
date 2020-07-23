@@ -29,7 +29,7 @@ function createError (
   error.type = type 
   // 错误类型的值
   error.ErrorType = {
-    CATCHED: ErrorType.STOP,
+    STOP: ErrorType.STOP,
     FAIL: ErrorType.FAIL,
     THROTTLE: ErrorType.THROTTLE,
     STATUS: ErrorType.STATUS,
