@@ -1,3 +1,4 @@
+/* global  XMLHttpRequest */
 // transformData 数据转换
 interface TransformData {
   (data: Record<string, any>): any
@@ -39,6 +40,14 @@ interface InterceptorResponse {
   (response: Record<string, any>): Record<string, any> | void
 }
 
+// 适配器响应数据
+interface AdapterResponseData {
+  body: any,
+  xhr: XMLHttpRequest,
+  status: number,
+  statusText: string,
+}
+
 export {
   NetrolOptions,
   ModuleDetail,
@@ -46,4 +55,5 @@ export {
   InterceptorRequest,
   InterceptorResponse,
   TransformData,
+  AdapterResponseData,
 }
