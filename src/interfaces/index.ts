@@ -1,3 +1,4 @@
+/* global  XMLHttpRequest */
 // transformData 数据转换
 interface TransformData {
   (data: Record<string, any>): any
@@ -8,7 +9,7 @@ interface Config {
   headers?: Record<string, any>, // 请求头
   timeout?: number, // 超时时间
   defaultMethod?: string, // 默认请求方法
-  // throttle?: Boolean, // 是否开启节流，此功能也许不可开放
+  // throttle?: boolean, // 是否开启节流，此功能也许不可开放
 }
 // Netrol 模块详情
 interface ModuleDetail {
@@ -34,9 +35,17 @@ interface NetrolOptions {
 interface InterceptorRequest {
   (config: Record<string, any>): Record<string, any> 
 }
-// 请求拦截器
+// 响应拦截器
 interface InterceptorResponse {
   (response: Record<string, any>): Record<string, any> | void
+}
+
+// 适配器响应数据
+interface AdapterResponseData {
+  body: any,
+  xhr: XMLHttpRequest,
+  status: number,
+  statusText: string,
 }
 
 export {
@@ -46,4 +55,5 @@ export {
   InterceptorRequest,
   InterceptorResponse,
   TransformData,
+  AdapterResponseData,
 }
