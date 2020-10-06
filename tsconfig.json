@@ -5,13 +5,19 @@
 		"noImplicitAny": false,
 		"noUnusedParameters": true,
 		"moduleResolution": "node",
+		"declaration": true,
+		"declarationDir": "dist/types",
 		"module": "esnext",
 		"target": "esnext",
 		"baseUrl": "./",
-		"paths":{
-				"@/*": ["src/*"]
-		}
+		// "paths":{
+		// 	"@/*": ["src/*"],
+		// },
+		"types": ["jest"],
 	},
-	"include": ["src/**/*.ts", "dev/**/*.ts", "index.ts"],
+	"include": [
+		"src/**/*.ts", 
+		"index.ts"
+	],
 	"exclude": ["node_modules"],
 }

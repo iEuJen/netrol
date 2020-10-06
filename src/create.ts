@@ -1,17 +1,15 @@
-import Netrol from './core/Netrol'
-import { NetrolOptions } from './interfaces/index'
+import { Netrol } from './core/Netrol'
+import { NetrolOptions } from './types/netrol'
+
 /**
- * 创建一个 netrol 实例
+ * 生成 netrol 实例并返回请求方法的函数
  */
 let netrol: Netrol = null
-export default function (options: NetrolOptions): Function {
-  // 只允许单例存在
-  if (!netrol) {
-    netrol = new Netrol(options)
-  } else {
-    console.warn('netrol instance is only')
-  }
-  return (apiName: string, data: any) => {
-    return netrol.request(apiName, data)
+export function create (options: NetrolOptions) {
+  if (netrol) return console.warn('netrol instance is only')
+  netrol = new Netrol(options)
+
+  return (name: string, data?: any) => {
+    return netrol.request(name, data)
   }
 }

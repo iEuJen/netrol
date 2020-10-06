@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="../dist/netrol.min.js"></script>
+</head>
+<body>
+  <input type="file" id="file">
+</body>
+<script>
+  console.log(Netrol)
+</script>
+
+<!-- <script>
+  const next = (result) => {
+    return Promise.resolve(result)
+  }
+  const stop = (err) => {
+    return Promise.reject(err)
+  }
+
+
+  function demo (res, next, stop) {
+    return next(res + 100)
+  }
+  function demo2 (res, next, stop) {
+    return next(res - 10)
+  }
+  function demo3 (res, next, stop) {
+    return stop('wtf')
+  }
+
+  Promise.resolve(1)
+  .then((res) => {
+    return demo(res, next, stop)
+  })
+  .then((res) => {
+    return demo2(res, next, stop)
+  })
+  .then((res) => {
+    return demo3(res, next, stop)
+  })
+  .then(res => {
+    console.log('res', res)
+  })
+  .catch(err => {
+    console.warn(err)
+  })
+</script> -->
+<script type="module">
+  import { create, interceptor, toCatch, timeoutHander, cancel, progressListener } from '../dist/netrol.esm.js'
+  const request = create({
+    config: {
+      baseUrl: 'http://localhost:3000',
+      defaultMethod: 'post',
+      headers: {
+        jwt: '233666'
+      }
+    },
+    apis: {
+      pt: '/post',
+      code: '/code',
+      time: {
+        url: '/timeout',
+        method: 'get'
+      }
+    },
+    leach: {
+      pt (res, stop) {
+        console.log('leach', res)
+        return res
+      }
+    },
+    module: {
+      moduleA: {
+        config: {
+          baseUrl: 'http://localhost:3000',
+          defaultMethod: 'get',
+          timeout: 3000
+        },
+        apis: {
+          text: '/text',
+          error: {
+            url: '/error',
+            method: 'pOSt'
+          },
+          timeout: '/timeout'
+        },
+        leach: {
+          todo () {
+            return ''
+          }
+        }
+      }
+    }
+  })
+  
+
+  // 拦截器
+  interceptor.request((config) => {
+    console.log('interceptor req', config)
+    config.headers.token = 'token5555'
+    return config
+  }).response((res, stop) => {
+    console.log('interceptor res', res)
+    return res.body
+  }).response((res, stop) => {
+    console.log(res)
+    if (res.code === 0) {
+      return stop()
+    }
+    return res
+  })
+
+  // toCatch
+  toCatch(500, () => {
+    console.log('500 error')
+  })
+  toCatch(404, () => {
+    console.log('404 error')
+  })
+
+  //timeoutHander
+  timeoutHander((info) => {
+    console.log(info)
+  })
+
+  // progressListener
+  // progressListener.upload('pt', (evt) => {
+  //   console.log('evt', evt)
+  // })
+  // progressListener.download('pt', (evt) => {
+  //   console.log('evt', evt)
+  // })
+  
+  const pr = request('pt', { a: 233 })
+  // const pr = request('code', { a: 233 })
+  // const pr = request('moduleA.timeout', { a: 233, b: 666 })
+  pr.then(res => {
+    console.log('last', res)
+  })
+
+
+  // // cancel
+  // setTimeout(() => {
+  //   cancel('moduleA.timeout')
+  // }, 2000)
+
+
+  // upload
+  document.getElementById('file').addEventListener('change', evt => {
+    let file = evt.target.files[0]
+    let fd = new FormData()
+    fd.append('file', file)
+    const pr = request('pt', fd)
+    pr.then(res => {
+      console.log('last', res)
+    })
+  })
+</script>
+</html>

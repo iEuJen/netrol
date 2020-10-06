@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 // 错误类型的枚举
 enum ErrorType {
   STOP = 0, // promise链终止，为了不执行 then 方法中或者 await 后的程序
@@ -19,14 +20,14 @@ function createError (
   message: string,
   type: ErrorType,
   isPromise: boolean = false,
-  extra?: Record<string, any>,
+  extra?: Record<string, any>
 ): Promise<Error> | Error {
   // 创建一个错误
-  let error: any = new Error(message)
+  const error: any = new Error(message)
 
   // 扩展 error 的属性
   // 当前的错误类型
-  error.type = type 
+  error.type = type
   // 错误类型的值
   error.ErrorType = {
     STOP: ErrorType.STOP,
@@ -44,10 +45,10 @@ function createError (
 
   // 转 JSON 的方法
   error.toJSON = function () {
-    let result: Record<string, any> = {
+    const result: Record<string, any> = {
       type: this.type,
       message,
-      ErrorType: this.ErrorType,
+      ErrorType: this.ErrorType
     }
     if (this.statusCode !== undefined) {
       result.statusCode = this.statusCode
@@ -58,7 +59,7 @@ function createError (
   if (isPromise) {
     return Promise.reject(error)
   }
-  
+
   return error
 }
 
@@ -66,6 +67,4 @@ function createError (
 export default createError
 
 // 导出错误类型
-export {
-  ErrorType
-}
+export { ErrorType }

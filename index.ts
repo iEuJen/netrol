@@ -1,23 +1,15 @@
-import create from './src/create'
-import toCatch from './src/toCatch'
-import timeoutHander from './src/timeoutHander'
-import cancel from './src/cancel'
-import interceptor from './src/interceptor'
-import progressListener from './src/progressListener'
-
-export default {
-  create,
-  toCatch,
-  timeoutHander,
-  cancel,
-  interceptor,
-  progressListener,
-}
+import { create } from './src/create'
+import { interceptor } from './src/interceptor'
+import { toCatch } from './src/toCatch'
+import { timeoutHander } from './src/timeoutHander'
+import { cancel } from './src/cancel'
+import { progressListener } from './src/progressListener'
 
 export {
+  create,
+  interceptor,
   toCatch,
   timeoutHander,
   cancel,
-  interceptor,
-  progressListener,
+  progressListener
 }

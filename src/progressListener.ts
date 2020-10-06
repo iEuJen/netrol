@@ -1,12 +1,13 @@
-import progressListener from './helpers/progressListener'
+import { progressListener as listener } from './core/progress/listener'
+
 /**
  * 添加进度监听器
  */
-export default {
+export const progressListener = {
   upload (apiName: string, exec: (progressEvent: Record<string, any>) => void) {
-    progressListener.add('upload', apiName, exec)
+    listener.add('upload', apiName, exec)
   },
   download (apiName: string, exec: (progressEvent: Record<string, any>) => void) {
-    progressListener.add('download', apiName, exec)
+    listener.add('download', apiName, exec)
   }
 }
