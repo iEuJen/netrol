@@ -1,273 +1,157 @@
-// 导入接口
-import { 
-  NetrolOptions,
-  ModuleDetail,
-  Modules,
-  InterceptorRequest,
-  InterceptorResponse,
-  TransformData 
-} from '@/interfaces/index'
-// 导入请求
-import dispatchRequest from './dispatchRequest'
-// 导入默认请求头
-import defaultHeaders from './headers'
-// 引入请求池
-import requestPool from './requestPool'
-// 引入工具方法
-import utils from '@/utils/index'
-// 引入错误创建工具
+import { NetrolOptions, NetrolApis, OptionsApi, NetrolApi, Config } from '../types/netrol'
+import { AdaptersRequest } from '../types/adapters'
+import { appendQueryToUrl, isArrayBuffer, isBlob, isFile, isFormData, isObject, isStream } from '../helpers/index'
 import createError, { ErrorType } from './createError'
+import { dispatchRequest } from './dispatchRequest'
+import { interceptor } from './interceptor'
 
-/**
- * Netrol 对象
- */
-class Netrol {
-  // 管理所有 apis
-  apis: object
-  // 发送 xhr请求 所需的 Request Headers
-  headers: object
-  // 响应数据过滤器，用于在请求成功后，接受服务器数据，并进行处理和返回
-  leach: object
-  // 基本url
-  baseUrl: string
-  // 模块
-  modules: Modules
-  // 超时时限
-  timeout: number
-  // 默认请求方法
-  defaultMethod: string
+export class Netrol {
+  apis: NetrolApis = {}
 
-  // 数据转换方法
-  transformData: TransformData
-
-  // 请求拦截器
-  static interceptorRequest: InterceptorRequest
-  // 响应拦截器
-  static interceptorResponse: InterceptorResponse
-
-  /**
-   * 构造函数
-   * @param options Netrol 实例的配置项
-   */
   constructor (options: NetrolOptions) {
-    let { apis, leach, module, transformData, config = {} } = options
-    let { headers, baseUrl, timeout, defaultMethod } = config
+    this.parseOption(options)
+  }
+
+  // 解析构造函数选项
+  private parseOption (options: NetrolOptions, moduleName?: string, mainConfig?: Config) {
+    const { apis, leach, module, config = {} } = options
+    const { defaultMethod, baseUrl, timeout, headers } = config
 
     // 检查 apis 是否存在
     if (!apis) throw createError('apis is required in constructor', ErrorType.FAIL)
 
-    // 初始化数据
-    this.apis = apis
-    this.headers = {
-      ...defaultHeaders,
-      ...headers,
-    }
-    this.leach = leach
-    this.baseUrl = baseUrl || ''
-    this.modules = module
-    this.timeout = timeout || 0
-    this.defaultMethod = defaultMethod || 'get'
-    this.transformData = transformData
-  }
+    // 遍历 生成 apis
+    Object.keys(apis).forEach(key => {
+      const value = apis[key]
 
-  /**
-   * 发起请求的方法
-   * @param apiName 调用指定 apis 
-   * @param data 传递给服务器的数据
-   */
-  request (apiName: string, data: any) {
-    let promise = null
-    let chain = null
-    
-    // 判断是否该请求是否正在执行
-    if ( requestPool.isExist(apiName) ) return createError('Not an error; Triggered throttle;', ErrorType.THROTTLE, true)
-    // 将 apiname 添加到请求池
-    requestPool.push(apiName)
+      const api: NetrolApi = this.createApi(
+        value,
+        baseUrl || mainConfig?.baseUrl,
+        defaultMethod || mainConfig?.defaultMethod || 'get'
+      )
 
-    // 根据调用 api，合并配置项
-    let config = this.mergeConfig(apiName, data)
-    // 如果返回的是 Promise 对象， 则直接返回
-    if (config instanceof Promise) return config
-
-    // 合并 promise 链
-    chain = this.mergePromiseChain(config)
-
-    // 连接 promise 链
-    promise = Promise.resolve(config)
-    while (chain.length) {
-      promise = promise.then( chain.shift() )
-    }
-    
-    return promise
-  }
-
-  /**
-   * 合并 promise 链
-   * @param config 请求配置对象
-   */
-  mergePromiseChain (config: Record<string, any>) {
-    // 将请求函数，添加到 promise 链数组中
-    let chain: Array<Function> = [dispatchRequest]
-
-    // 如果存在 interceptorRequest 则添加到 promise 链的最前面
-    if (Netrol.interceptorRequest) {
-      chain.unshift(Netrol.interceptorRequest)
-    }
-    // 如果存在 interceptorResponse 则添加到 promise 连上
-    if (Netrol.interceptorResponse) {
-      chain.push(Netrol.interceptorResponse)
-
-      // 同时添加后续处理函数，当返回值为空值的时候，抛出异常，终止promise
-      chain.push((res) => {
-        if (!res) return createError('Not an error; promise stop;', ErrorType.STOP, true)
-        return res
-      })
-    }
-
-    // 存在 leach，则添加到 promise 链中
-    if (config.leach) {
-      chain.push(config.leach)
-    }
-    delete config.leach
-    
-    return chain
-  }
-
-  /**
-   * 合并配置项
-   * @param apiName 对应调用的接口
-   */
-  mergeConfig (apiName: string, data: object): Record<string, any> {
-    let config = null
-    let api = null
-    let leach = null
-    let headers = utils.deepCopy(this.headers)
-    let baseUrl = this.baseUrl
-    let timeout = this.timeout
-    let defaultMethod = this.defaultMethod
-    // 数据转换函数
-    let transformData = this.transformData
-
-    // 判断调用的是否为 module 中 api
-    if ( apiName.includes('.') ) {
-      let [module, name] = apiName.split('.')
-      let theModule: ModuleDetail = this.modules[module]
-
-      // 判断传递的 module 是否存在
-      if (!theModule) return createError(`module ${module} does not exist; 模块 ${module} 不存在`, ErrorType.FAIL, true)
-
-      // 如果 transformData 方法存在，则重新赋值
-      if (theModule.transformData) {
-        transformData = theModule.transformData
+      api.headers = {
+        ...mainConfig?.headers,
+        ...headers
       }
 
-      // 判断模块上是否存在配置项
-      if (theModule.config) {
-        // 模块上如果存在 baseUrl，则更改 baseUrl，则更改
-        if (theModule.config.baseUrl) {
-          baseUrl = theModule.config.baseUrl
-        }
-        // 模块上如果存在 headers，则合并
-        if (theModule.config.headers) {
-          headers = {
-            ...headers,
-            ...utils.deepCopy(theModule.config.headers)
-          }
-        }
-        // 如果模块上存在 timeout，则进行替换
-        if (theModule.config.timeout) {
-          timeout = theModule.config.timeout
-        }
-        // 判断模块上是否存在默认请求方法，存在则替换
-        if (theModule.config.defaultMethod) {
-          defaultMethod = theModule.config.defaultMethod
-        }
+      api.timeout = timeout || mainConfig?.timeout || 0
+      if (timeout === 0) api.timeout = 0 // 如何是0，那还是赋0值
+
+      // 判断是否存在过滤器
+      if (leach && leach[key]) {
+        api.leach = leach[key]
       }
-      
-      // 提取 api 和 leach
-      api = theModule.apis[name]
-      leach = theModule.leach ? theModule.leach[name] : null
-    } else {
-      // 提取 api 和 leach
-      api = this.apis[apiName]
-      leach = this.leach ? this.leach[apiName] : null
-    }
 
-    // 判断是否找到对应 api
-    if (!api) return createError(`api ${apiName} does not exist; 接口 ${apiName} 不存在`, ErrorType.FAIL, true)
+      // 添加到 apis 上
+      this.apis[moduleName ? `${moduleName}.${key}` : key] = api
+    })
 
-    // 判断api是否为对象
-    if ( utils.isObject(api) ) {
-      // 深复制 api
-      api = utils.deepCopy(api)
-      // 将 api.method 的值，转为英文小写, method 存在，默认调用 get
-      api.method = !api.method ? defaultMethod : api.method.toLowerCase()
-      // 合并 baseUrl 和 api.url
-      api.url = `${baseUrl}${api.url}`
+    if (!module) return
+    // 处理模块
+    Object.keys(module).forEach(key => {
+      this.parseOption(module[key], key, config)
+    })
+  }
+
+  private createApi (api: OptionsApi | string, baseUrl: string, defaultMethod: string): NetrolApi {
+    let netrolApi: NetrolApi
+    if (isObject(api)) {
+      netrolApi = {
+        url: `${baseUrl}${(api as OptionsApi).url}`,
+        method: (api as OptionsApi).method.toLowerCase()
+      }
     } else {
-      // 不是对象，则使用默认的方法
-      let url = `${baseUrl}${api}`
-      api = {
-        url,
+      netrolApi = {
+        url: `${baseUrl}${api as string}`,
         method: defaultMethod.toLowerCase()
       }
     }
+    return netrolApi
+  }
 
-    // 合并 headers 和 api.headers
-    headers = {
-      ...headers,
-      ...api.headers
-    }
-    // 删除 api.headers
-    delete api.headers
-
-    // 合并配置项
-    config = {
-      apiName,
-      headers,
-      timeout,
-      leach,
-      ...api,
-    }
-    
-    if (config.method !== 'get') {
-      // data 存在，则将其装换后添加到 config 上
-      if (data && !transformData) {
-        config.data = this.defaultTransformData(data)
-      } else if (data && transformData) {
-        config.data = transformData(data)
-      }
-    } else if (data) {
-      config.url = utils.appendQueryToUrl(config.url, data)
+  // 发起请求
+  request (name: string, data?: any): Promise<any> {
+    const api = this.apis[name]
+    // 判断对应 name 的 api 是否存在
+    if (!api) return createError(`api ${name} is not exist`, ErrorType.FAIL, true) as Promise<Error>
+    // 定义请求配置
+    const config = {
+      name,
+      data,
+      headers: api.headers,
+      method: api.method,
+      url: api.url,
+      timeout: api.timeout
     }
 
-    // 返回
-    return config
+    // 请求为get请求，且存在data
+    if (config.data && config.method === 'get') {
+      // 将data存放到url上
+      config.url = appendQueryToUrl(config.url, data)
+      config.data = null
+    }
+
+    // promise 链数组
+    const chain: Array<any> = [this.transformData, dispatchRequest]
+
+    // 将拦截器添加到promise链上
+    interceptor.request.forEach(inter => {
+      chain.unshift(inter)
+    })
+    interceptor.response.forEach(inter => {
+      chain.push((res) => {
+        return inter(res, this.stop)
+      })
+    })
+
+    // 添加过滤器
+    if (api.leach) {
+      chain.push((res) => {
+        return api.leach(res, this.stop)
+      })
+    }
+
+    // 串连promise链
+    let promise = Promise.resolve(config)
+    while (chain.length) {
+      promise = promise.then(chain.shift())
+    }
+    return promise
+  }
+
+  // 终止promise的函数
+  stop (): Promise<Error> {
+    return createError('Not an error; promise stop;', ErrorType.STOP, true) as Promise<Error>
   }
 
   /**
-   * 默认的转换请求数据方法
-   * @param data 
+   * 转换请求数据, 作为请求拦截器的一环
+   * @param data
    */
-  defaultTransformData (data) {
+  transformData (config: AdaptersRequest) {
+    const data = config.data
+    if (typeof data === 'string') return Promise.resolve(config)
     // 特殊对象，直接返回
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
+    if (
+      isFormData(data) ||
+      isArrayBuffer(data) ||
+      isStream(data) ||
+      isFile(data) ||
+      isBlob(data)
     ) {
-      return data
+      return Promise.resolve(config)
     }
 
     // 普通对象，转为 JSON 字符串
-    if ( utils.isObject(data) ) {
-      return JSON.stringify(data)
+    if (isObject(data)) {
+      return Promise.resolve({
+        ...config,
+        data: JSON.stringify(data)
+      })
     }
 
     // 未知情况，直接返回
-    return data
+    return Promise.resolve(config)
   }
 }
-
-export default Netrol

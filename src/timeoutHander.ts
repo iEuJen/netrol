@@ -1,10 +1,10 @@
-import catcher from './helpers/catcher'
+import catcher from './core/catcher'
 import createError, { ErrorType } from './core/createError'
 /**
  * 注册超时处理函数
  */
 
-export default function (hander: Function) {
+export function timeoutHander (hander: Function) {
   if (!catcher.timeoutHander) {
     catcher.registerTimeoutHander(hander)
   } else {

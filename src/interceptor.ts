@@ -1,16 +1,13 @@
-import Netrol from './core/Netrol'
-import createError, { ErrorType } from './core/createError'
-import { InterceptorResponse, InterceptorRequest } from './interfaces/index'
+import { interceptor as intercept } from './core/interceptor'
+import { InterceptorRequest, InterceptorResponse } from './types/interceptor'
 
-export default {
-  // 绑定请求拦截器
-  request (callback: InterceptorRequest) {
-    if (Netrol.interceptorRequest) throw createError('interceptorRequest already exists', ErrorType.FAIL)
-    Netrol.interceptorRequest = callback
+export const interceptor = {
+  request (inter: InterceptorRequest) {
+    intercept.req(inter)
+    return this
   },
-  // 绑定响应拦截器
-  response (callback: InterceptorResponse) {
-    if (Netrol.interceptorResponse) throw createError('interceptorResponse already exists', ErrorType.FAIL)
-    Netrol.interceptorResponse = callback
+  response (inter: InterceptorResponse) {
+    intercept.res(inter)
+    return this
   }
 }
